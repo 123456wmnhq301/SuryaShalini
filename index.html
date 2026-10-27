@@ -6,6 +6,63 @@
   <meta name="viewport" content="width=device-width">
   <title>SURYA WEDS SHALINI</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;600&display=swap">
+  <script>
+    // Our photos replace the template ones in "Meet the Bride & Groom" and "Touch here for Magic".
+    (() => {
+      const BASE = 'https://pub-93e3e99663004df48f9d970291bbb5e5.r2.dev/';
+      const ALL = ['IMG-20260713-WA0020.jpg','IMG-20260713-WA0021.jpg','IMG-20260713-WA0023.jpg',
+'IMG-20260713-WA0024.jpg',
+ 
+'IMG-20260713-WA0027.jpg',
+ 
+'IMG-20260713-WA0028.jpg',
+ 
+'IMG-20260713-WA0036.jpg',
+ 
+'IMG-20260713-WA0036.jpg',
+ 
+'IMG-20260713-WA0043.jpg',
+ 
+'IMG_20260713_140524.jpg',
+  'file_00000000d44c8211ae48f603e555ff39.png']
+        .map(name => BASE + name);
+      // Golden frame slideshow (portrait photos).
+      const FRAME = {
+        mpTuXe92kxp4o8MtgrakEGpuQPA: BASE + 'IMG_7443.JPG',
+        '123OKdea8oPhNCq0uetsHB8OcDw': BASE + 'IMG_7470.JPG',
+        Hroe8U2N75359CjJrk9AA0WAFk: BASE + 'IMG_7523.JPG',
+        HHhvRybKYYn0bwE2ivhhQVsGc5A: BASE + 'IMG_7525.JPG'
+      };
+      // Image trail: each template image becomes one of our photos, cycling through all of them.
+      const TRAIL = ['N0mmpaVYIbVcUFHCUgY3nAAlDtc', 'WWmSkxqa8ulx5rhaDOCFLy9hocA', '77S2570ytoGkXSUUbVJMfB04swU',
+        'ZQ9mdLaCYzVdKKfodWuj2Alt6k', 'rmu3DXEKVTE5W8bdx8ELNshCEI', 'jVY5Zrj2IbsHEA6HqbeZ8XQOAuc'];
+      let next = 0;
+      const swap = url => {
+        if (typeof url !== 'string' || !url.includes('framerusercontent.com/images/')) return url;
+        for (const id in FRAME) if (url.includes(id)) return FRAME[id];
+        if (TRAIL.some(id => url.includes(id))) return ALL[next++ % ALL.length];
+        return url;
+      };
+      const isTemplate = url => typeof url === 'string' && swap(url) !== url;
+      window.__swapPhoto = swap;
+
+      const setAttribute = Element.prototype.setAttribute;
+      Element.prototype.setAttribute = function (name, value) {
+        if (this instanceof HTMLImageElement) {
+          if (name === 'src') value = swap(value);
+          else if (name === 'srcset' && isTemplate(value)) value = '';
+        }
+        return setAttribute.call(this, name, value);
+      };
+      for (const prop of ['src', 'srcset']) {
+        const desc = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, prop);
+        Object.defineProperty(HTMLImageElement.prototype, prop, {
+          ...desc,
+          set(value) { desc.set.call(this, prop === 'src' ? swap(value) : isTemplate(value) ? '' : value); }
+        });
+      }
+    })();
+  </script>
   <meta name="description" content="We're getting married! 💍
 Click the link below to view our wedding invitation. We can't wait to celebrate with you!">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E%F0%9F%92%8D%3C/text%3E%3C/svg%3E">
@@ -5761,19 +5818,19 @@ Click the link below to view our wedding invitation. We can't wait to celebrate 
                 <div
                   style="width:100%;height:100%;position:relative;overflow:hidden;border-radius:6px;touch-action:auto">
                   <img
-                    src="https://framerusercontent.com/images/mpTuXe92kxp4o8MtgrakEGpuQPA.jpeg?width=768&amp;height=1376"
+                    src="https://pub-93e3e99663004df48f9d970291bbb5e5.r2.dev/IMG_7443.JPG"
                     alt loading="lazy"
                     style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:1;transition:opacity 0.8s ease;will-change:opacity;pointer-events:none;user-select:none">
                   <img
-                    src="https://framerusercontent.com/images/123OKdea8oPhNCq0uetsHB8OcDw.jpeg?width=768&amp;height=1376"
+                    src="https://pub-93e3e99663004df48f9d970291bbb5e5.r2.dev/IMG_7470.JPG"
                     alt loading="lazy"
                     style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.8s ease;will-change:opacity;pointer-events:none;user-select:none">
                   <img
-                    src="https://framerusercontent.com/images/Hroe8U2N75359CjJrk9AA0WAFk.jpeg?width=768&amp;height=1376"
+                    src="https://pub-93e3e99663004df48f9d970291bbb5e5.r2.dev/IMG_7523.JPG"
                     alt loading="lazy"
                     style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.8s ease;will-change:opacity;pointer-events:none;user-select:none">
                   <img
-                    src="https://framerusercontent.com/images/HHhvRybKYYn0bwE2ivhhQVsGc5A.jpeg?width=768&amp;height=1376"
+                    src="https://pub-93e3e99663004df48f9d970291bbb5e5.r2.dev/IMG_7525.JPG"
                     alt loading="lazy"
                     style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.8s ease;will-change:opacity;pointer-events:none;user-select:none">
                 </div>
@@ -5787,19 +5844,19 @@ Click the link below to view our wedding invitation. We can't wait to celebrate 
                 <div
                   style="width:100%;height:100%;position:relative;overflow:hidden;border-radius:6px;touch-action:auto">
                   <img
-                    src="https://framerusercontent.com/images/mpTuXe92kxp4o8MtgrakEGpuQPA.jpeg?width=768&amp;height=1376"
+                    src="https://pub-93e3e99663004df48f9d970291bbb5e5.r2.dev/IMG_7443.JPG"
                     alt loading="lazy"
                     style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:1;transition:opacity 0.8s ease;will-change:opacity;pointer-events:none;user-select:none">
                   <img
-                    src="https://framerusercontent.com/images/123OKdea8oPhNCq0uetsHB8OcDw.jpeg?width=768&amp;height=1376"
+                    src="https://pub-93e3e99663004df48f9d970291bbb5e5.r2.dev/IMG_7470.JPG"
                     alt loading="lazy"
                     style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.8s ease;will-change:opacity;pointer-events:none;user-select:none">
                   <img
-                    src="https://framerusercontent.com/images/Hroe8U2N75359CjJrk9AA0WAFk.jpeg?width=768&amp;height=1376"
+                    src="https://pub-93e3e99663004df48f9d970291bbb5e5.r2.dev/IMG_7523.JPG"
                     alt loading="lazy"
                     style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.8s ease;will-change:opacity;pointer-events:none;user-select:none">
                   <img
-                    src="https://framerusercontent.com/images/HHhvRybKYYn0bwE2ivhhQVsGc5A.jpeg?width=768&amp;height=1376"
+                    src="https://pub-93e3e99663004df48f9d970291bbb5e5.r2.dev/IMG_7525.JPG"
                     alt loading="lazy"
                     style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.8s ease;will-change:opacity;pointer-events:none;user-select:none">
                 </div>
@@ -6411,6 +6468,8 @@ Click the link below to view our wedding invitation. We can't wait to celebrate 
     .framer-1u82y34, [data-framer-name="THE ARTFUL INVITES"] { display: none !important; }
     /* Instagram section (page 7) commented out */
     .framer-131l9v1, [data-framer-name="PAGE 7"] { display: none !important; }
+    /* Fit the page to its sections so no empty space is left at the bottom */
+    .framer-m7ulU .framer-ji2yub { aspect-ratio: auto !important; height: auto !important; }
     .framer-1jgx9kw .framer-text, .framer-qqlkw5 .framer-text {
       --framer-font-family: "Montserrat", sans-serif !important; font-family: "Montserrat", sans-serif !important;
       --framer-font-weight: 600 !important; font-weight: 600 !important;
@@ -6469,7 +6528,7 @@ Click the link below to view our wedding invitation. We can't wait to celebrate 
           <div class="ks-row">${icon.date}<span>${e.date}</span></div>
           <div class="ks-row">${icon.time}<span>${e.time}</span></div>
           <div class="ks-row">${icon.venue}<span>${e.venue}</span></div>
-          <a class="ks-btn" href="${mapLink(e.map)}" target="_blank" rel="noopener">View Location</a>
+          <a class="ks-btn" href="${e.url || mapLink(e.map)}" target="_blank" rel="noopener">View Location</a>
         </div>`;
       const eventsHTML = `
         <div class="ks-inner">
@@ -6480,7 +6539,8 @@ Click the link below to view our wedding invitation. We can't wait to celebrate 
               map: 'Sree Easwarakala Boothathan Temple, Alappancode, Melpuram' })}
             ${eventCard({ title: 'Reception', date: 'Friday, 13 November 2026', time: '5:00 PM to 8:00 PM',
               venue: 'Sree Krishna Temple Auditorium, Krishnapuram',
-              map: 'Sree Krishna Temple Auditorium, Krishnapuram' })}
+              map: 'Sree Krishna Temple Auditorium, Krishnapuram',
+              url: 'https://maps.app.goo.gl/tevVBjuFXB8Uv4Xh9?g_st=ac' })}
           </div>
           <div class="ks-thanks">
             <h3>With Best Compliments From</h3>
@@ -6554,6 +6614,11 @@ Click the link below to view our wedding invitation. We can't wait to celebrate 
           panel.innerHTML = eventsHTML;
           slideshow.appendChild(panel);
         }
+
+        document.querySelectorAll('img').forEach(img => {
+          const src = img.getAttribute('src'), url = window.__swapPhoto ? window.__swapPhoto(src) : src;
+          if (url !== src) img.setAttribute('src', url);
+        });
 
         updateCountdown();
       };
