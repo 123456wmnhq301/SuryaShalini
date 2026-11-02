@@ -6348,6 +6348,166 @@ Click the link below to view our wedding invitation. We can't wait to celebrate 
     <div id="overlay"></div>
     <!--/$-->
   </div>
+<!-- Start of Wishes section -->
+<section id="wishes-section">
+  <style>
+    #wishes-section{background:#fff;padding:80px 20px;display:flex;justify-content:center;font-family:'Abhaya Libre',serif;color:#2b2b2b}
+    #wishes-section .w-card{width:100%;max-width:560px;text-align:center}
+    #wishes-section h2{font-family:'Luxurious Script',cursive;font-weight:400;font-size:52px;line-height:1.1;margin:0 0 8px}
+    #wishes-section p.w-sub{margin:0 0 28px;font-size:18px;opacity:.75}
+    #wishes-section form{display:flex;flex-direction:column;gap:14px;text-align:left}
+    #wishes-section label{font-size:16px;letter-spacing:.04em}
+    #wishes-section input[type=text],#wishes-section textarea{width:100%;box-sizing:border-box;border:1px solid #cfc6bd;border-radius:10px;padding:12px 14px;font:inherit;font-size:18px;background:#fffdfb;color:inherit;outline:none}
+    #wishes-section input[type=text]:focus,#wishes-section textarea:focus{border-color:#8a6d4b;box-shadow:0 0 0 3px rgba(138,109,75,.15)}
+    #wishes-section textarea{min-height:140px;resize:vertical}
+    #wishes-section button{margin-top:6px;border:0;border-radius:999px;padding:13px 28px;font:inherit;font-size:19px;background:#8a6d4b;color:#fff;cursor:pointer;transition:opacity .2s}
+    #wishes-section button:disabled{opacity:.55;cursor:not-allowed}
+    #wishes-section .w-hp{position:absolute;left:-9999px;height:0;width:0;opacity:0}
+    #wishes-section .w-note{font-size:13px;opacity:.55;text-align:center;margin-top:4px}
+    #wishes-section .w-msg{min-height:24px;font-size:17px;text-align:center}
+    #wishes-section .w-msg.ok{color:#2e7d32}
+    #wishes-section .w-msg.err{color:#b3261e}
+  </style>
+  <div class="w-card">
+    <h2>Send Your Wishes</h2>
+    <p class="w-sub">Leave a blessing for Surya &amp; Shalini</p>
+    <form id="wishForm" autocomplete="off" novalidate>
+      <div>
+        <label for="wName">Your Name</label>
+        <input type="text" id="wName" maxlength="60" required placeholder="Enter your name">
+      </div>
+      <div>
+        <label for="wText">Your Wishes</label>
+        <textarea id="wText" maxlength="500" required placeholder="Write your wishes here..."></textarea>
+      </div>
+      <input type="text" id="wWebsite" class="w-hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <button type="submit" id="wBtn">Send Wishes</button>
+      <div class="w-msg" id="wMsg" role="status" aria-live="polite"></div>
+      <div class="w-note">To prevent spam, your device type, approximate location and time are recorded with your wish.</div>
+    </form>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // TODO: paste your Firebase web app config here (Firebase console > Project settings > Your apps)
+    // const firebaseConfig = {
+    //   apiKey: "YOUR_API_KEY",
+    //   authDomain: "YOUR_PROJECT.firebaseapp.com",
+    //   projectId: "YOUR_PROJECT_ID",
+    //   appId: "YOUR_APP_ID"
+    // };
+
+  
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyAVizGrudnz04RxYzVxsAQewrWSPTO_TYo",
+    authDomain: "wedding-wishes-d4a18.firebaseapp.com",
+    projectId: "wedding-wishes-d4a18",
+    storageBucket: "wedding-wishes-d4a18.firebasestorage.app",
+    messagingSenderId: "453248088767",
+    appId: "1:453248088767:web:3cebb7819d17ce9004640a",
+    measurementId: "G-MH78NYVRRZ"
+  };
+
+  // // Initialize Firebase
+  // const app = initializeApp(firebaseConfig);
+  // const analytics = getAnalytics(app);
+
+    
+
+    const form = document.getElementById("wishForm");
+    const btn = document.getElementById("wBtn");
+    const msg = document.getElementById("wMsg");
+    const say = (t, cls) => { msg.textContent = t; msg.className = "w-msg " + (cls || ""); };
+
+    let db = null;
+    try { db = getFirestore(initializeApp(firebaseConfig)); } catch (e) { console.error(e); }
+
+    async function sha256(str) {
+      try {
+        const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+        return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
+      } catch (_) {
+        let h = 5381; for (let i = 0; i < str.length; i++) h = ((h << 5) + h + str.charCodeAt(i)) | 0;
+        return "x" + (h >>> 0).toString(16);
+      }
+    }
+
+    function deviceType() {
+      const ua = navigator.userAgent;
+      if (/iPad|Tablet|PlayBook|Silk/i.test(ua) || (/Android/i.test(ua) && !/Mobile/i.test(ua))) return "tablet";
+      if (/Mobi|Android|iPhone|iPod/i.test(ua)) return "mobile";
+      return "laptop/desktop";
+    }
+
+    function getLocalId() {
+      try {
+        let id = localStorage.getItem("wishDeviceId");
+        if (!id) { id = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random()); localStorage.setItem("wishDeviceId", id); }
+        return id;
+      } catch (_) { return null; }
+    }
+
+    async function getPlace() {
+      try {
+        const c = new AbortController(); setTimeout(() => c.abort(), 4000);
+        const r = await fetch("https://ipapi.co/json/", { signal: c.signal });
+        const j = await r.json();
+        return { ip: j.ip || null, city: j.city || null, region: j.region || null, country: j.country_name || null, isp: j.org || null };
+      } catch (_) { return { ip: null, city: null, region: null, country: null, isp: null }; }
+    }
+
+    form.addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      const name = document.getElementById("wName").value.trim();
+      const wish = document.getElementById("wText").value.trim();
+      if (document.getElementById("wWebsite").value) return;            // honeypot: bots only
+      if (name.length < 2) return say("Please enter your name.", "err");
+      if (wish.length < 3) return say("Please write your wishes.", "err");
+      if (!db) return say("Wishes are not set up yet.", "err");
+      try { if (localStorage.getItem("wishSent")) return say("You've already sent your wishes. Thank you! 💛", "ok"); } catch (_) {}
+
+      btn.disabled = true; say("Sending...");
+      try {
+        const nav = navigator, scr = screen;
+        const fpSource = [nav.userAgent, nav.platform, nav.language, scr.width + "x" + scr.height, scr.colorDepth,
+          nav.hardwareConcurrency, nav.deviceMemory, Intl.DateTimeFormat().resolvedOptions().timeZone].join("|");
+        const fingerprint = await sha256(fpSource);
+        const place = await getPlace();
+
+        // doc id = fingerprint: the same device can create only one wish (rules block updates)
+        await setDoc(doc(db, "wishes", fingerprint), {
+          name, wish,
+          createdAt: serverTimestamp(),
+          clientTime: new Date().toISOString(),
+          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          device: deviceType(),
+          platform: nav.userAgentData?.platform || nav.platform || null,
+          userAgent: nav.userAgent,
+          language: nav.language,
+          screen: scr.width + "x" + scr.height,
+          localDeviceId: getLocalId(),
+          fingerprint,
+          ip: place.ip, city: place.city, region: place.region, country: place.country, isp: place.isp,
+          referrer: document.referrer || null,
+          page: location.href
+        });
+        try { localStorage.setItem("wishSent", "1"); } catch (_) {}
+        form.reset();
+        say("Thank you for your lovely wishes! 💛", "ok");
+      } catch (e) {
+        console.error(e);
+        const dup = e && e.code === "permission-denied";
+        say(dup ? "Wishes from this device were already received. Thank you! 💛" : "Could not send. Please try again.", dup ? "ok" : "err");
+        btn.disabled = false;
+      }
+    });
+  </script>
+</section>
+<!-- End of Wishes section -->
   <script>
     (() => {
       function u() {
